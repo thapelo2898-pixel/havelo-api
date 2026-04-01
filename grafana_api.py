@@ -5,9 +5,17 @@ from datetime import datetime, timezone, timedelta
 
 app = Flask(__name__)
 
-if not firebase_admin._apps:
-    cred = credentials.Certificate("serviceAccountKey.json")
-    firebase_admin.initialize_app(cred)
+import json
+
+# Load credentials from the Railway environment variable
+if 'FIREBASE_CREDENTIALS' in os.environ:
+    cred_json = json.loads(os.environ.get('FIREBASE_CREDENTIALS'))
+    cred = credentials.Certificate(cred_json)
+else:
+    # Fallback for local testing if the file exists
+    cred = credentials.Certificate('serviceAccountKey.json')
+
+firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
